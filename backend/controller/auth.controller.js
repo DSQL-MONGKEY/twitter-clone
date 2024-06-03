@@ -21,6 +21,10 @@ export const signup = async(req, res) => {
          return res.status(400).json({ error: "Email already taken" });
       }
 
+      if(password < 6) {
+         return res.status(400).json({ error: "Password must be at least 6 characters long" })
+      }
+
       const salt = await bcrypt.genSalt(10); // define hash length
       const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -88,23 +92,21 @@ export const login = async(req, res) => {
 
 export const getMe = async(req, res) => {
    try {
-
+      const user = await User.findById(req.user._id).select('-password');
+      res.status(200).json(user)
    } catch(err) {
-      
+      console.log({ error: `Error in getMe controller: ${err.message}` });
+      res.status(500).json({ error:  `internal server error` })
    }
 }
 
 
 export const logout = async(req, res) => {
    try {
-      
-
-
-
+      res.cookie('jwt', '', { maxAge: 0 });
+      res.status(200).json({ message: 'Logged out succesfully' });
    } catch(err) {
       console.log(`Error in logout controller: ${err.message}`);
-      res.status(500).json({
-         error: `Internal server error occured: ${err.message}`
-      });
+      res.status(500).json({ error: 'Internal server error' });
    }
 }
