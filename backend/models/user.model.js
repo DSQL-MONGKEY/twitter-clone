@@ -2,14 +2,14 @@ import mongoose from "mongoose";
 
 
 const userSchema = new mongoose.Schema({
+   fullName: {
+      type: String,
+      required: true,
+   },
    username: {
       type: String,
       required: true,
       unique: true,
-   },
-   fullName: {
-      type: String,
-      required: true,
    },
    password: {
       type: String,
@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema({
       type: String,
       default: "",
    },
-   converImg: {
+   coverImg: {
       type: String,
       default: ""
    },
