@@ -25,7 +25,6 @@ export const followUnfollowUser = async(req, res) => {
       if(id === req.user._id.toString()) {
          return res.status(400).json({ error: "You can't follow/unfollow yourself" })
       }
-      
 
       if(!userToModify || !currentUser) {
          return res.status(400).json({ error: "User not found" });
@@ -37,12 +36,14 @@ export const followUnfollowUser = async(req, res) => {
          // Unfollow the user
          await User.findByIdAndUpdate(id, { $pull: { followers: req.user._id } })
          await User.findByIdAndUpdate(req.user._id, { $pull: { following: id } })
+
          // Send notification to the user
          const newNotifications = new notifications({
             type: "follow",
             from: req.user._id,
             to: userToModify,
          })
+         await newNotifications.save();
 
          res.status(200).json({ message: `Success unfollowed ${userToModify.username}` });
       } else {
@@ -100,7 +101,7 @@ export const updateUser = async(req, res) => {
       let user = await User.findById(userId);
       if(!user) return res.status(400).json({ error: "User not found" });
 
-      if((!newPassword && newPassword) || (!newPassword && currentPassword)) {
+      if((!currentPassword && newPassword) || (!newPassword && currentPassword)) {
          return res.status(400).json({ error: 'Please provide both current password and new password' });
       }
 
