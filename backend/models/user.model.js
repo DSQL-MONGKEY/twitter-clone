@@ -24,14 +24,14 @@ const userSchema = new mongoose.Schema({
    followers: [
       {
          type: mongoose.Schema.ObjectId, // reference to user model
-         ref: "user",
+         ref: "User",
          default: [],
       }
    ],
    following: [
       {
          type: mongoose.Schema.ObjectId,
-         ref: "user",
+         ref: "User",
          default: [],
       }
    ],
@@ -50,9 +50,16 @@ const userSchema = new mongoose.Schema({
    link: {
       type: String,
       default: ""
-   }
+   },
+   likedPosts: [
+      {
+         type: mongoose.Schema.Types.ObjectId,
+         ref: "Post",
+         default: []
+      }
+   ]
 }, { timestamps: true })
 
-const User = mongoose.model("user", userSchema);
+const User = mongoose.model("User", userSchema);
 
 export default User;
