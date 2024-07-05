@@ -14,9 +14,9 @@ function App() {
       <Sidebar />
       <Routes>
         <Route path='/' element={<HomePage />} />
-        <Route path='/profile/:username' element={<ProfilePage />} />
         <Route path='/login' element={<LoginPage />} />
         <Route path='/signup' element={<SignUpPage />} />
+        <Route path='/profile/:username' element={<ProfilePage />} />
         <Route path='/notifications' element={<NotificationPage />} />
       </Routes>
       <RightPanel />
