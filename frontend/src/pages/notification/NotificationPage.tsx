@@ -28,18 +28,18 @@ const NotificationPage = () => {
 			type: "like",
 		},
 		{
-			_id: "2",
+			_id: "21",
 			from: {
-				_id: "2",
+				_id: "21",
 				username: "janedoe",
 				profileImg: "/avatars/girl1.png",
 			},
 			type: "like",
 		},
       {
-			_id: "1",
+			_id: "12",
 			from: {
-				_id: "1",
+				_id: "12",
 				username: "johndoe",
 				profileImg: "/avatars/boy2.png",
 			},
