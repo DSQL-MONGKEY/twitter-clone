@@ -81,12 +81,12 @@ const Post = ({ post }) => {
                   <dialog id={`comments_modal${post._id}`} className='modal border-none outline-none'>
                      <div className='modal-box rounded border border-gray-600'>
                         <h3 className='font-bold text-lg mb-4'>COMMENTS</h3>
-                        <div className='flex flex-col gap-4 max-h-60 overflow-auto'>
+                        <div className='flex flex-col gap-3 max-h-60 overflow-auto'>
                            {post.comments.length === 0 && (
                               <p>No comments yet 🤔 Be the first one 😉</p>
                            )}
                            {post.comments.map((comment) => (
-                              <div key={comment.id} className='flex gap-2 items-start'>
+                              <div key={comment._id} className='flex gap-2 items-start'>
                                  <div className='avatar'>
                                     <div className='w-8 rounded-full'>
                                        <img src={comment.user.profileImg || "/avatar-placeholder.png"} alt="profileImg" />
