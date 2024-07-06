@@ -52,7 +52,7 @@ const NotificationPage = () => {
 	};
 
    return (
-      <div className='flex-[4_4_0] border-l border-r border-gray-700 min-h-screen'>
+      <div className='flex-[4_4_0] border-l border-r boer-grayrd-700 min-h-screen'>
          <div className='flex justify-between items-center p-4 border-b bordero-gray-700'>
             <p className='font-bold'>Notifications</p>
             <div className='dropdown'>
