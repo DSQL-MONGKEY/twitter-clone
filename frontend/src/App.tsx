@@ -12,8 +12,11 @@ import { useQuery } from '@tanstack/react-query'
 import LoadingSpinner from './components/common/LoadingSpinner'
 
 function App() {
+
+   // this is called "query" that have authUser
    const { data:authUser, isLoading, } = useQuery({
-      queryKey: ['authUser','coba'],
+      // queryKey to give a unique name to our query and refer to it later
+      queryKey: ['authUser'],
       queryFn: async() => {
          try {
             const res = await fetch('/api/auth/me')
