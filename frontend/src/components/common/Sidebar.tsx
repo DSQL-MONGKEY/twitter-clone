@@ -23,8 +23,8 @@ const Sidebar = () => {
          }
       },
       onSuccess: () => {
+         queryClient.invalidateQueries({ queryKey: ['authUser', 'coba'] });
          toast.success('Logout successfully')
-         queryClient.invalidateQueries({ queryKey: ["authUser"] });
       },
       onError: () => {
          toast.error('Logout failed')
@@ -32,6 +32,7 @@ const Sidebar = () => {
    })
 
    const { data:authUser } = useQuery({ queryKey: ['authUser'] })
+
    return (
       <div className='w-18 max-w-52 md:flex[2_2_0]'>
          <div className='sticky top-0 left-0 h-screen flex flex-col border-r border-gray-700 w-20 md:w-full'>
@@ -59,7 +60,8 @@ const Sidebar = () => {
                </li>
             </ul>
             {authUser && (
-               <Link to={`/profile/${authUser.username}`} className='mt-auto mb-10 flex gap-2 items-start transition-all duration-300 hover:bg-[#181818] py-2 px-4 rounded-full mr-2'>
+               <div className='mt-auto mb-10 flex gap-2 items-start transition-all duration-300 hover:bg-[#181818] py-2 px-4 rounded-full mr-2'>
+                  <Link to={`/profile/${authUser?.username}`} className='flex gap-2 items-start'>
                   <div className='avatar hidden md:inline-flex'>
                      <div className='w-8 rounded-full'>
                         <img src={authUser?.profileImg || '/avatar-placeholder.png'} alt="profile-image" />
@@ -74,11 +76,13 @@ const Sidebar = () => {
                            @{authUser?.username}
                         </p>
                      </div>
-                     <BiLogOut 
-                        className='w-5 h-5 cursor-pointer' 
-                        onClick={() => logout()}/>
                   </div>
                </Link>   
+                  <BiLogOut 
+                     className='w-5 h-5 cursor-pointer' 
+                     onClick={() => logout()}
+                  />
+               </div>
             )}
          </div>
       </div>
