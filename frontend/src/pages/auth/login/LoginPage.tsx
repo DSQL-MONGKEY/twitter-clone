@@ -16,7 +16,6 @@ const LoginPage = () => {
    });
 
    const queryClient = useQueryClient();
-
    const { mutate:login, isPending, isError, error } = useMutation({
       mutationFn: async({ username, password }) => {
          try {
@@ -38,6 +37,7 @@ const LoginPage = () => {
       },
       onSuccess: () => {
          toast.success('Login successfully')
+         // refetch the authUser
          queryClient.invalidateQueries({ queryKey: ['authUser'] });
       }
    })
