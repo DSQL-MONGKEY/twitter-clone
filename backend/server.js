@@ -22,7 +22,8 @@ const app = express();
 const HOST = process.env.HOST;
 const PORT = process.env.PORT;
 
-app.use(express.json()); // to parse request.body
+// limit shouldn't too large to avoid the Dos attack 
+app.use(express.json({ limit: '2mb' })); // to parse request.body
 app.use(express.urlencoded({ extended: true })) // to parse form data
 app.use(cookieParser());
 
