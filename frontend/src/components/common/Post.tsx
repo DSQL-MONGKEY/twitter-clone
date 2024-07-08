@@ -15,7 +15,7 @@ import { formatPostDate } from "../../utils/date";
 
 const Post = ({ post }) => {
    const [comment, setComment] = useState<string>('');
-   const {data:authUser} = useQuery({queryKey:['authUser']})
+   const { data:authUser } = useQuery({queryKey:['authUser']})
    const queryClient = useQueryClient();
    const postOwner = post.user;
 
@@ -57,10 +57,22 @@ const Post = ({ post }) => {
             throw new Error(error)
          }
       },
-      onSuccess: () => {
-         // this is not the best way for UX
-         queryClient.invalidateQueries({ queryKey: ['posts'] });
-         toast.success('Post liked')
+      onSuccess: (updatedLikes) => {
+         /**
+          * this is not the best way for UX, bc it will refetch the all post
+          * queryClient.invalidateQueries({ queryKey: ['posts'] });
+          */
+         queryClient.setQueryData(['posts'], (oldData: object[]) => {
+            return oldData.map((p: object) => {
+               if(p._id === post._id) {
+                  return {...p, likes: updatedLikes};
+               }
+               console.log(p)
+               return p;
+            })
+         })
+         console.log(updatedLikes);
+         toast.success('sss')
       }
    })
 
