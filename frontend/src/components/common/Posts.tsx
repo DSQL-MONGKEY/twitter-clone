@@ -43,7 +43,6 @@ const Posts = ({ feedType }: PostsProps) => {
       refetch();
    }, [feedType, refetch]);
 
-   console.log(isLoading, '  ', isRefetching)
    return (
       <>
          {(isLoading || isRefetching) && (
