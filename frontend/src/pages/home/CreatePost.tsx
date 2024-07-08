@@ -14,7 +14,7 @@ const CreatePost = () => {
    const { data:authUser } = useQuery({ queryKey: ['authUser'] });
 
    const { mutate:createPost, isPending, isError, error } = useMutation({
-      mutationFn: async({ text, img }) => {
+      mutationFn: async() => {
          try {
             const res = await fetch('/api/posts/create', {
                method: 'POST',
@@ -43,7 +43,7 @@ const CreatePost = () => {
 
    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      createPost({text, img});
+      createPost();
    }
 
    const imgRef = useRef(null)
