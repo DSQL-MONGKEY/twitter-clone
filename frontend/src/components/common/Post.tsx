@@ -1,12 +1,14 @@
+import React, { useState } from "react";
 import { FaRegComment } from "react-icons/fa";
 import { BiRepost } from "react-icons/bi";
 import { FaRegHeart } from "react-icons/fa";
 import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
-import React, { useState } from "react";
+import { FcLike } from "react-icons/fc";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+
 import LoadingSpinner from "./LoadingSpinner";
 import { formatPostDate } from "../../utils/date";
 
@@ -17,7 +19,7 @@ const Post = ({ post }) => {
    const queryClient = useQueryClient();
    const postOwner = post.user;
 
-   const { mutate:deletePost, isPending } = useMutation({
+   const { mutate:deletePost, isPending:isDeleting } = useMutation({
       mutationFn: async() => {
          try {
             const res = await fetch(`/api/posts/${post._id}`, {
@@ -39,6 +41,29 @@ const Post = ({ post }) => {
       }
    })
 
+   const { mutate:likePost, isPending:isLiking } = useMutation({
+      mutationFn: async() => {
+         try {
+            const res = await fetch(`/api/posts/like/${post._id}`, {
+               method: 'POST',
+            });
+            const data = await res.json();
+
+            if(!res.ok) {
+               throw new Error(data.error || 'Something went wrong');
+            }
+            return data;
+         } catch (error) {
+            throw new Error(error)
+         }
+      },
+      onSuccess: () => {
+         // this is not the best way for UX
+         queryClient.invalidateQueries({ queryKey: ['posts'] });
+         toast.success('Post liked')
+      }
+   })
+
    const isLiked = post.likes.includes(authUser._id);
    const isMyPost = authUser._id === post.user._id;
    const isCommenting = false;
@@ -50,7 +75,9 @@ const Post = ({ post }) => {
    const handlePostComment = (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
    }
-   const handleLikePost = () => {}
+   const handleLikePost = () => {
+      likePost();
+   }
 
    return (
       <>
@@ -80,10 +107,10 @@ const Post = ({ post }) => {
                   </span>
                   {isMyPost && (
                      <span className='flex flex-1 justify-end'>
-                        {!isPending && (
+                        {!isDeleting && (
                            <FaTrash className='cursor-pointer hover:text-red-500' onClick={handleDeletePost} />
                         )}
-                        {isPending && (
+                        {isDeleting && (
                            <LoadingSpinner size='xl' />
                         )}
                      </span>
@@ -153,9 +180,10 @@ const Post = ({ post }) => {
                               value={comment}
                               onChange={(e) => setComment(e.target.value)}
                            />
-                           <button>
+                           <button 
+                              disabled={comment == '' ? true : false} className='btn btn-primary btn-sm rounded-full text-white px-4 disabled:bg-slate-800'>
                               {isCommenting ? (
-                                 <span className='loading loading-spinner loading-md text-info'></span>
+                                 <LoadingSpinner size='md' />
                               ) : (
                                  "Post"
                               )}
@@ -172,18 +200,18 @@ const Post = ({ post }) => {
                         <span className='text-sm text-slate-500 group-hover:text-green-500'>0</span>
                   </div>
                   {/* Like */}
-                  <div className='flex gap-1 items-center group cursor-pointer' onClick={handleLikePost}>
-                        {!isLiked && (
-                           <FaRegHeart className='w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500' />
-                        )}
-                        {isLiked && (
-                           <FaRegHeart className='w-4 h-4 cursor-pointer text-pink-500 ' />
-                        )}
-                        
+                  <div
+                     className='flex gap-1 items-center group cursor-pointer' onClick={handleLikePost}
+                  >
+                     {isLiking && <LoadingSpinner size='sm' />}
+                     {!isLiked && !isLiking && (
+                        <FaRegHeart className='w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500' />
+                     )}
+                     {isLiked && !isLiking && (
+                        <FcLike className='w-4 h-4 cursor-pointer' />
+                     )}
                      <span
-                        className={`text-sm text-slate-500 group-hover:text-pink-500 ${
-                           isLiked ? "text-pink-500" : ""
-                        }`}
+                        className={`text-sm group-hover:text-pink-500 ${isLiked ? 'text-pink-500' : 'text-slate-500'}`}
                      >
                         {post.likes.length}
                      </span>
