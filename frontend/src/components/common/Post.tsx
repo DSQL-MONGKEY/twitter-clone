@@ -12,8 +12,12 @@ import toast from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
 import { formatPostDate } from "../../utils/date";
 
+interface PostProps {
+   post: object
+}
 
-const Post = ({ post }) => {
+
+const Post = ({ post }: PostProps) => {
    const [comment, setComment] = useState<string>('');
    const { data:authUser } = useQuery({queryKey:['authUser']})
    const queryClient = useQueryClient();
@@ -54,31 +58,77 @@ const Post = ({ post }) => {
             }
             return data;
          } catch (error) {
-            throw new Error(error)
+            throw new Error(error);
          }
       },
       onSuccess: (updatedLikes) => {
          /**
-          * this is not the best way for UX, bc it will refetch the all post
-          * queryClient.invalidateQueries({ queryKey: ['posts'] });
+          * @perf -
+          *  this is not the best way for UX, bc it will refetch the all post
+          *  queryClient.invalidateQueries({ queryKey: ['posts'] });
+          * @solution
+          *  instead, update the cache 'directly for that post' 
           */
          queryClient.setQueryData(['posts'], (oldData: object[]) => {
             return oldData.map((p: object) => {
                if(p._id === post._id) {
                   return {...p, likes: updatedLikes};
                }
-               console.log(p)
                return p;
             })
          })
-         console.log(updatedLikes);
-         toast.success('sss')
-      }
+      },
+      onError: (error) => {
+         toast.error(error.message);
+      } 
    })
+
+   const { mutate:commentPost, isPending:isCommenting } = useMutation({
+      mutationFn: async() => {
+         try {
+            const res = await fetch(`/api/posts/comment/${post._id}`, {
+               method: 'POST',
+               headers: {
+                  "Content-Type": "application/json"
+               },
+               body: JSON.stringify({ text: comment })
+            })
+            const data = await res.json();
+
+            if(!res.ok) {
+               throw new Error(data.error || 'Something went wrong');
+            }
+            return data;
+         } catch (error) {
+            throw new Error(error);
+         }
+      },
+      onSuccess: (updatedComments) => {
+         setComment('');
+         toast.success('Comment posted');
+         /**
+          * @perf -
+          *  this is not the best way for UX, bc it will refetch the all post
+          *  queryClient.invalidateQueries({ queryKey: ['posts'] });
+          * @solution
+          *  instead, update the cache 'directly for that post' 
+          */
+         queryClient.setQueryData(['posts'], (oldData:object[]) => {
+            return oldData.map((p) => {
+               if(p._id == post._id ) {
+                  return {...p, comments: updatedComments};
+               }
+               return p;
+            })
+         })
+      },
+      onError: (error) => {
+         toast.error(error.message);
+      }
+   });
 
    const isLiked = post.likes.includes(authUser._id);
    const isMyPost = authUser._id === post.user._id;
-   const isCommenting = false;
    const formattedDate = formatPostDate(post.createdAt);
 
    const handleDeletePost = () => {
@@ -86,6 +136,7 @@ const Post = ({ post }) => {
    }
    const handlePostComment = (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
+      commentPost();
    }
    const handleLikePost = () => {
       likePost();
