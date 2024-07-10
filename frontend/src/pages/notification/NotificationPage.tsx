@@ -31,7 +31,6 @@ const NotificationPage = () => {
 
    const { mutate:deleteNotifications } = useMutation({
       mutationFn: async() => {
-          console.log('tess')
          try {
             const res = await fetch('/api/notifications', {
                method: 'DELETE'
