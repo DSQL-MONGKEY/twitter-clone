@@ -4,52 +4,59 @@ import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { IoSettingsOutline } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 
 const NotificationPage = () => {
-   const isLoading = false;
-	const notifications = [
-		{
-			_id: "1",
-			from: {
-				_id: "1",
-				username: "johndoe",
-				profileImg: "/avatars/boy2.png",
-			},
-			type: "follow",
-		},
-		{
-			_id: "2",
-			from: {
-				_id: "2",
-				username: "janedoe",
-				profileImg: "/avatars/girl1.png",
-			},
-			type: "like",
-		},
-		{
-			_id: "21",
-			from: {
-				_id: "21",
-				username: "janedoe",
-				profileImg: "/avatars/girl1.png",
-			},
-			type: "like",
-		},
-      {
-			_id: "12",
-			from: {
-				_id: "12",
-				username: "johndoe",
-				profileImg: "/avatars/boy2.png",
-			},
-			type: "follow",
-		},
-	];
+   const queryClient = useQueryClient();
+   const { data:notifications, isLoading } = useQuery({
+      queryKey: ['notifications'],
+      queryFn: async() => {
+         try {
+            const res = await fetch('/api/notifications', {
+               method: 'GET'
+            });
+            const data = await res.json();
+            
+            if(!res.ok) {
+               throw new Error(data.error || 'Something went wrong');
+            }
+            return data;
+         } catch (error) {
+            throw new Error(error)
+         }
+      },
+   })
 
-	const deleteNotifications = () => {
-		alert("All notifications deleted");
-	};
+   const { mutate:deleteNotifications } = useMutation({
+      mutationFn: async() => {
+          console.log('tess')
+         try {
+            const res = await fetch('/api/notifications', {
+               method: 'DELETE'
+            })
+            const data = await res.json();
+
+            if(!res.ok) {
+               throw new Error(data.error || 'Something went wrong');
+            }
+            return data;
+         } catch (error) {
+            throw new Error(error);
+         }
+      },
+      onSuccess: () => {
+         toast.success('Notifications deleted')
+         queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      }
+   })
+
+   const { data:authUser } = useQuery({ queryKey: ['authUser'] });
+
+   const handleDelete = () => {
+      deleteNotifications()
+   }
 
    return (
       <div className='flex-[4_4_0] border-l border-r boer-grayrd-700 min-h-screen'>
@@ -59,9 +66,9 @@ const NotificationPage = () => {
                <div className='m-1' tabIndex={0} role='button'>
                   <IoSettingsOutline className='w-4' />
                </div>
-               <ul className='dropdown-content z-[1] menu p-2 bg-base-100 rounded-box w-52'>
+               <ul className='dropdown-content z-[1] menu p-2 bg-base-100 rounded-box w-52' tabIndex={0}>
                   <li>
-                     <a onClick={deleteNotifications}>
+                     <a onClick={handleDelete}>
                         Delete all notifications
                      </a>
                   </li>
@@ -73,12 +80,12 @@ const NotificationPage = () => {
                <LoadingSpinner size="lg" />
             </div>
          )}
-         {notifications.length === 0 && (
+         {notifications?.length === 0 && (
             <div className='text-center p-4 font-bold'>
                No notifications 🤔
             </div>
          )}
-         {notifications.map((notification) => (
+         {notifications?.map((notification) => (
             <div className='border-b border-gray-700' key={notification._id}>
                <div className='flex gap-2 p-4'>
                   {notification.type === "follow" && (
@@ -87,15 +94,21 @@ const NotificationPage = () => {
                   {notification.type === "like" && (
                      <FaHeart className='w-7 h-7 text-red-500' />
                   )}
-                  <Link to={`/profile/${notification.from.username}`} className="flex items-center gap-2">
+                  <Link to={`/profile/${notification?.from.username}`} className="flex items-center gap-2">
                      <div className='avatar'>
                         <div className='w-8 rounded-full'>
-                           <img src={notification.from.profileImg || "/avatar-placeholder.png"} />
+                           <img src={notification?.from.profileImg || "/avatar-placeholder.png"} />
                         </div>
                      </div>
                      <div className='flex gap-1'>
                         <span className='font-bold'>
-                           @{notification.from.username}
+                           {notification?.from.username === authUser?.username ? (
+                              'You'
+                           ) : (
+                              <span>
+                                 @{notification?.from.username}
+                              </span>
+                           )}
                         </span>{" "}
                         {notification.type === "follow" ? "followed you" : "liked your post"}
                      </div>
