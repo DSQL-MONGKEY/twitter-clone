@@ -23,7 +23,7 @@ const Sidebar = () => {
          }
       },
       onSuccess: () => {
-         queryClient.invalidateQueries({ queryKey: ['authUser', 'coba'] });
+         queryClient.invalidateQueries({ queryKey: ['authUser'] });
          toast.success('Logout successfully')
       },
       onError: () => {
