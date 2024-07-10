@@ -1,16 +1,16 @@
-import Notifications from "../models/notification.model.js";
+import Notification from "../models/notification.model.js";
 
 
 
 export const getNotifications = async(req, res) => {
    try {
       const userId = req.user._id;
-      const notifications = await Notifications.find({ to: userId })
+      const notifications = await Notification.find({ to: userId })
          .populate({
             path: 'from',
             select: 'username profileImg',
          })
-      await Notifications.updateMany({ to: userId }, { read: true });
+      await Notification.updateMany({ to: userId }, { read: true });
 
       res.status(200).json(notifications);
    } catch(err) {
@@ -23,7 +23,7 @@ export const deleteNotifications = async(req, res) => {
    try {
       const userId = req.user._id;
 
-      await Notifications.deleteMany({ to: userId });
+      await Notification.deleteMany({ to: userId });
 
       res.status(200).json({ message: 'Notifications deleted successfully' });
    } catch(err) {
