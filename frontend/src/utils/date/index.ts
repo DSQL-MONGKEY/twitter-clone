@@ -3,7 +3,6 @@ export const formatPostDate = (createdAt) => {
    const createdAtDate = new Date(createdAt);
 
    const timeDiffrenceInSecond = Math.floor((currentDate - createdAt) / 1000);
-
    const timeDiffrenceInMinutes = Math.floor(timeDiffrenceInSecond / 60);
    const timeDiffrenceInHours = Math.floor(timeDiffrenceInMinutes / 60);
    const timeDiffrenceInDays = Math.floor(timeDiffrenceInHours / 24);
