@@ -5,9 +5,11 @@ import { useEffect } from "react";
 
 interface PostsProps {
    feedType: string
+   username: string | any
+   userId: string
 }
 
-const Posts = ({ feedType }: PostsProps) => {
+const Posts = ({ feedType, username, userId }: PostsProps) => {
 
    const getPostEndpoint = () => {
       switch(feedType){
@@ -15,6 +17,10 @@ const Posts = ({ feedType }: PostsProps) => {
             return '/api/posts/all';
          case "following":
             return '/api/posts/following';
+         case "posts":
+            return `/api/posts/user/${username}`;
+         case "likes":
+            return `/api/posts/likes/${userId}`;
          default:
             return '/api/posts/all'
       }
