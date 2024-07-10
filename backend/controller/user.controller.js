@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
-import notifications from "../models/notification.model.js";
+import Notification from "../models/notification.model.js";
 import User from "../models/user.model.js";
 
 export const getUserProfile = async(req, res) => {
@@ -38,7 +38,7 @@ export const followUnfollowUser = async(req, res) => {
          await User.findByIdAndUpdate(req.user._id, { $pull: { following: id } })
 
          // Send notification to the user
-         const newNotifications = new notifications({
+         const newNotifications = new Notification({
             type: "follow",
             from: req.user._id,
             to: userToModify,
@@ -51,7 +51,7 @@ export const followUnfollowUser = async(req, res) => {
          await User.findByIdAndUpdate(id, { $push: { followers: req.user._id } });
          await User.findByIdAndUpdate(req.user._id, { $push: { following: id } })
          // Send notificaion to the user
-         const newNotifications = new notifications({
+         const newNotifications = new Notification({
             type: "follow",
             from: req.user._id,
             to: userToModify,
