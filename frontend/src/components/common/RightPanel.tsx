@@ -6,7 +6,7 @@ import LoadingSpinner from "./LoadingSpinner";
 import RightPanelSkeleton from "../skeletons/RightPanelSkeleton";
 
 interface UserCallback {
-   _id: string
+   _id: string & void
    username: string
    fullName: string
    profileImg: string
