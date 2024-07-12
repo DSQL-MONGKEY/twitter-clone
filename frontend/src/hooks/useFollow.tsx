@@ -15,7 +15,7 @@ const useFollow = () => {
             if(!res.ok) {
                throw new Erorr(data.error || 'Somthing went wrong');
             }
-            return data;
+            return;
          } catch (error) {
             throw new Error(error);
          }
