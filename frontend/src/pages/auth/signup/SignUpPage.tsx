@@ -7,10 +7,14 @@ import { MdPassword } from "react-icons/md";
 import { MdDriveFileRenameOutline } from "react-icons/md";
 import { Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
 import toast from 'react-hot-toast';
 
-
+interface FormStateTypes {
+   email: string
+   username: string
+   fullName: string
+   password: string
+}
 
 const SignUpPage = () => {
    const [formData, setFormData] = useState({
@@ -21,7 +25,7 @@ const SignUpPage = () => {
    });
 
    const { mutate:signup, isError, isPending, error } = useMutation({
-      mutationFn: async({ email, username, fullName, password }) => {
+      mutationFn: async({ email, username, fullName, password }:FormStateTypes) => {
          try {
             const res = await fetch('/api/auth/signup', {
                method: 'POST',
@@ -37,8 +41,9 @@ const SignUpPage = () => {
             console.log(data);
             return data;
          } catch(error) {
-            console.log(error)
-            throw error;
+            if(error instanceof Error) {
+               throw new Error(error.message);
+            }
          }
       },
       onSuccess: () => {
@@ -51,7 +56,7 @@ const SignUpPage = () => {
       signup(formData);
       console.log(formData);
    }
-   const handleInputChange = (e: React.FormEvent<HTMLInputElement>) => {
+   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setFormData({ ...formData, [e.target.name]: e.target.value });
    }
 

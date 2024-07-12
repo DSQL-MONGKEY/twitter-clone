@@ -7,6 +7,19 @@ import { FaHeart } from "react-icons/fa6";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
+type FromTypes = {
+   username: string
+   profileImg: string
+}
+type AuthUserTypes = {
+   username: string
+}
+interface NotificationCallback {
+   type: string
+   _id: string
+   from: FromTypes
+   username: string
+}
 
 const NotificationPage = () => {
    const queryClient = useQueryClient();
@@ -24,7 +37,9 @@ const NotificationPage = () => {
             }
             return data;
          } catch (error) {
-            throw new Error(error)
+            if(error instanceof Error) {
+               throw new Error(error.message);
+            }
          }
       },
    })
@@ -42,7 +57,9 @@ const NotificationPage = () => {
             }
             return data;
          } catch (error) {
-            throw new Error(error);
+            if(error instanceof Error) {
+               throw new Error(error.message);
+            }
          }
       },
       onSuccess: () => {
@@ -51,7 +68,7 @@ const NotificationPage = () => {
       }
    })
 
-   const { data:authUser } = useQuery({ queryKey: ['authUser'] });
+   const { data:authUser } = useQuery<AuthUserTypes>({ queryKey: ['authUser'] });
 
    const handleDelete = () => {
       deleteNotifications()
@@ -84,7 +101,7 @@ const NotificationPage = () => {
                No notifications 🤔
             </div>
          )}
-         {notifications?.map((notification) => (
+         {notifications?.map((notification: NotificationCallback) => (
             <div className='border-b border-gray-700' key={notification._id}>
                <div className='flex gap-2 p-4'>
                   {notification.type === "follow" && (

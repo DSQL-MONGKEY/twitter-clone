@@ -5,8 +5,13 @@ import { useEffect } from "react";
 
 interface PostsProps {
    feedType: string
-   username?: string | any
+   username?: string
    userId?: string
+}
+
+interface PostCallback {
+   _id: string
+   post: object[]
 }
 
 const Posts = ({ feedType, username, userId }: PostsProps) => {
@@ -40,7 +45,9 @@ const Posts = ({ feedType, username, userId }: PostsProps) => {
 
             return data;
          } catch(error) {
-            throw new Error(error)
+            if(error instanceof Error) {
+               throw new Error(error.message);
+            }
          }
       }
    })
@@ -61,7 +68,7 @@ const Posts = ({ feedType, username, userId }: PostsProps) => {
          {!isLoading && !isRefetching && posts?.length === 0 && <p className='text-center my-4'>No posts in this tab. Switch 👻</p>}
 			{!isLoading && !isRefetching && posts && (
 				<div>
-					{posts.map((post) => (
+					{posts.map((post: PostCallback) => (
 						<Post key={post._id} post={post} />
 					))}
 				</div>

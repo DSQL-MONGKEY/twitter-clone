@@ -10,14 +10,16 @@ const useFollow = () => {
             const res = await fetch(`/api/users/follow/${userId}`, {
                method: 'POST'
             });
-            const data = res.json();
+            const data = await res.json();
 
             if(!res.ok) {
-               throw new Erorr(data.error || 'Somthing went wrong');
+               throw new Error(data.error || 'Somthing went wrong');
             }
             return;
          } catch (error) {
-            throw new Error(error);
+            if(error instanceof Error) {
+               throw new Error(error.message);
+            }
          }
       },
       onSuccess: () => {

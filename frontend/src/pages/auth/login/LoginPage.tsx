@@ -9,6 +9,11 @@ import { MdPassword } from "react-icons/md";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 
+interface FormStateType {
+   username: string
+   password: string
+}
+
 const LoginPage = () => {
    const [formData, setFormData] = useState({
       username: '',
@@ -17,7 +22,7 @@ const LoginPage = () => {
 
    const queryClient = useQueryClient();
    const { mutate:login, isPending, isError, error } = useMutation({
-      mutationFn: async({ username, password }) => {
+      mutationFn: async({ username, password }:FormStateType) => {
          try {
             const res = await fetch('/api/auth/login', {
                method: 'POST',
@@ -32,7 +37,9 @@ const LoginPage = () => {
                throw new Error(data.error || 'Something went wrong');
             }
          } catch(error) {
-            throw new Error(error)
+            if(error instanceof Error) {
+               throw new Error(error.message);
+            }
          }
       },
       onSuccess: () => {
@@ -45,9 +52,8 @@ const LoginPage = () => {
    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       login(formData);
-      console.log(formData);
    }
-   const handleInputChange = (e: React.FormEvent<HTMLInputElement>) => {
+   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setFormData({ ...formData, [e.target.name]: e.target.value});
    }
 

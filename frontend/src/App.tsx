@@ -29,7 +29,9 @@ function App() {
             console.log('This is authUser: ', data);
             return data;
          } catch (error) {
-            throw new Error(error)
+            if(error instanceof Error) {
+               throw new Error(error.message);
+            }
          }
       },
       retry: false

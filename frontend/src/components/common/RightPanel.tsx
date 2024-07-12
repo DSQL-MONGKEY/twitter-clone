@@ -5,20 +5,30 @@ import useFollow from "../../hooks/useFollow";
 import LoadingSpinner from "./LoadingSpinner";
 import RightPanelSkeleton from "../skeletons/RightPanelSkeleton";
 
+interface UserCallback {
+   _id: string
+   username: string
+   fullName: string
+   profileImg: string
+}
+
 const RightPanel = () => {
    const { data:suggestedUsers, isLoading } = useQuery({
       queryKey: ['suggestedUsers'],
       queryFn: async() => {
          try {
             const res = await fetch('api/users/suggested');
-            const data = res.json();
+            const data = await res.json();
 
             if(!res.ok) {
                throw new Error(data.error || 'Something went wrong');
             }
+
             return data;
          } catch (error) {
-            throw new Error(error);
+            if(error instanceof Error) {
+               throw new Error(error.message);
+            }
          }
       },
    });   
@@ -45,7 +55,7 @@ const RightPanel = () => {
                   </>
                )}
                {!isLoading && (
-                  suggestedUsers?.map((user) => (
+                  suggestedUsers?.map((user: UserCallback) => (
                      <Link 
                         to={`/profile/${user.username}`}
                         className='flex items-center justify-between gap-4'
