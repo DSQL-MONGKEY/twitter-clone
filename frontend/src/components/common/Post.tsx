@@ -147,7 +147,7 @@ const Post = ({ post }: PostProps) => {
          <div className='flex items-start p-4 gap-2 border-b border-gray-700'>
             {/* Avatar user profile */}
             <div className='avatar'>
-               <Link to={`/profle/${postOwner.usernme}`} className='w-8 rounded-full overflow-hidden'>
+               <Link to={`/profile/${postOwner.username}`} className='w-8 rounded-full overflow-hidden'>
                   <img 
                      src={postOwner.profileImg || '/avatar-placeholder.png'} alt="profile-image" 
                   />
