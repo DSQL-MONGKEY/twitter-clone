@@ -128,6 +128,10 @@ export const updateUser = async(req, res) => {
       }
 
       if(coverImg) {
+         if(user.coverImg) {
+            await cloudinary.uploader.destroy(user.coverImg.split('/').pop().split('.')[0]);
+         }
+
          const uploadedResponse = await cloudinary.uploader.upload(coverImg);
          coverImg = uploadedResponse.secure_url;
       }
@@ -138,7 +142,7 @@ export const updateUser = async(req, res) => {
       user.bio = bio || user.bio;
       user.link = link || user.link;
       user.profileImg = profileImg || user.profileImg;
-      user.coverImg == coverImg || user.coverImg;
+      user.coverImg = coverImg || user.coverImg;
 
       user = await user.save();
       // Password must be null in response
