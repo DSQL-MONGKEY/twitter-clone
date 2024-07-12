@@ -5,8 +5,8 @@ import { useEffect } from "react";
 
 interface PostsProps {
    feedType: string
-   username: string | any
-   userId: string
+   username?: string | any
+   userId?: string
 }
 
 const Posts = ({ feedType, username, userId }: PostsProps) => {
