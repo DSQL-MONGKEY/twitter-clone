@@ -1,10 +1,12 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
+import useUpdateUserProfile from "../../hooks/useUpdateProfile";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 interface InputChange {
    (e: React.FormEvent<HTMLInputElement|HTMLTextAreaElement>): void
 }
 
-const EditProfileModal = () => {
+const EditProfileModal = ({ authUser }) => {
    const [formData, setFormData] = useState({
       fullName: "",
       username: "",
@@ -15,13 +17,29 @@ const EditProfileModal = () => {
       currentPassword: ""
    });
 
+   const { updateProfile, isUpdating } = useUpdateUserProfile();
+
    const handleInputChange:InputChange = (e) => {
       setFormData({ ...formData, [e.target.name]: e.target.value })
    }
    const handleSubmit = (e:React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      alert('Profile updated')
+      updateProfile(formData);
    }
+   
+   useEffect(() => {
+      if(authUser) {
+         setFormData({
+            fullName: authUser?.fullName,
+            username: authUser?.username,
+            email: authUser?.email,
+            bio: authUser?.bio,
+            link: authUser?.link,
+            newPassword: "",
+            currentPassword: "",
+         })
+      }
+   }, [authUser])
 
    return (
       <>
@@ -96,7 +114,10 @@ const EditProfileModal = () => {
 							name='link'
 							onChange={handleInputChange}
 						/>
-						<button className='btn btn-primary rounded-full btn-sm text-white'>Update</button>
+						<button className='btn btn-primary rounded-full btn-sm text-white'>
+                     {isUpdating && <LoadingSpinner size="md" />}
+                     {!isUpdating && 'Update'}
+                  </button>
                </form>
             </div>
             <form method="dialog" className='modal-backdrop'>
