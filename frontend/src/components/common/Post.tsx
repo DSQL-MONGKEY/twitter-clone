@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { FaRegComment } from "react-icons/fa";
 import { BiRepost } from "react-icons/bi";
@@ -12,15 +13,38 @@ import toast from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
 import { formatPostDate } from "../../utils/date";
 
+type AuthUserType = {
+   _id: string
+}
+type UserTypes = { 
+   _id: string
+   username: string
+   profileImg: string
+   fullName: string
+}
+type CommentTypes = {
+   user: UserTypes
+   text: string
+   _id: string
+}
+type PostTypes = {
+   _id?: string
+   user?: UserTypes
+   createdAt?: string
+   text?: string
+   img?: string
+   likes?: [string]
+   comments?: CommentTypes[]
+}
 interface PostProps {
-   post: object
+   post: PostTypes
 }
 
 
 const Post = ({ post }: PostProps) => {
    const [comment, setComment] = useState<string>('');
-   const { data:authUser } = useQuery({queryKey:['authUser']})
    const queryClient = useQueryClient();
+   const { data:authUser } = useQuery<AuthUserType>({queryKey:['authUser']})
    const postOwner = post.user;
 
    const { mutate:deletePost, isPending:isDeleting } = useMutation({
@@ -29,14 +53,16 @@ const Post = ({ post }: PostProps) => {
             const res = await fetch(`/api/posts/${post._id}`, {
                method: 'DELETE'
             });
-            const data = res.json();
+            const data = await res.json();
    
             if(!res.ok) {
                throw new Error(data.error || 'Something went wrong')
             }
             return data;
          } catch (error) {
-            throw new Error(error);
+            if(error instanceof Error) {
+               throw new Error(error.message);
+            }
          }
       },
       onSuccess: () => {
@@ -58,7 +84,9 @@ const Post = ({ post }: PostProps) => {
             }
             return data;
          } catch (error) {
-            throw new Error(error);
+            if(error instanceof Error) {
+               throw new Error(error.message);
+            }
          }
       },
       onSuccess: (updatedLikes) => {
@@ -70,7 +98,7 @@ const Post = ({ post }: PostProps) => {
           *  instead, update the cache 'directly for that post' 
           */
          queryClient.setQueryData(['posts'], (oldData: object[]) => {
-            return oldData.map((p: object) => {
+            return oldData.map((p: any) => {
                if(p._id === post._id) {
                   return {...p, likes: updatedLikes};
                }
@@ -100,7 +128,9 @@ const Post = ({ post }: PostProps) => {
             }
             return data;
          } catch (error) {
-            throw new Error(error);
+            if(error instanceof Error) {
+               throw new Error(error.message);
+            }
          }
       },
       onSuccess: (updatedComments) => {
@@ -114,7 +144,7 @@ const Post = ({ post }: PostProps) => {
           *  instead, update the cache 'directly for that post' 
           */
          queryClient.setQueryData(['posts'], (oldData:object[]) => {
-            return oldData.map((p) => {
+            return oldData.map((p: any) => {
                if(p._id == post._id ) {
                   return {...p, comments: updatedComments};
                }
@@ -127,9 +157,10 @@ const Post = ({ post }: PostProps) => {
       }
    });
 
-   const isLiked = post.likes.includes(authUser._id);
-   const isMyPost = authUser._id === post.user._id;
+   const isLiked = post.likes?.includes(authUser!._id);
+   const isMyPost = authUser!._id === post.user?._id;
    const formattedDate = formatPostDate(post.createdAt);
+   
 
    const handleDeletePost = () => {
       deletePost();
@@ -147,9 +178,9 @@ const Post = ({ post }: PostProps) => {
          <div className='flex items-start p-4 gap-2 border-b border-gray-700'>
             {/* Avatar user profile */}
             <div className='avatar'>
-               <Link to={`/profile/${postOwner.username}`} className='w-8 rounded-full overflow-hidden'>
+               <Link to={`/profile/${postOwner?.username}`} className='w-8 rounded-full overflow-hidden'>
                   <img 
-                     src={postOwner.profileImg || '/avatar-placeholder.png'} alt="profile-image" 
+                     src={postOwner?.profileImg || '/avatar-placeholder.png'} alt="profile-image" 
                   />
                </Link>
             </div>
@@ -157,13 +188,13 @@ const Post = ({ post }: PostProps) => {
             <div className='flex flex-col flex-1'>
                <div className='flex gap-2 items-center'>
                   <div>
-                     <Link to={`/profile/${postOwner.username}`} className='font-bold'>
-                        {postOwner.fullName}
+                     <Link to={`/profile/${postOwner?.username}`} className='font-bold'>
+                        {postOwner?.fullName}
                      </Link>
                   </div>
                   <span className='text-gray-700 flex gap-1 text-sm'>
-                     <Link to={`/profile/${postOwner.username}`}>
-                        @{postOwner.username}
+                     <Link to={`/profile/${postOwner?.username}`}>
+                        @{postOwner?.username}
                      </Link>
                      <span>.</span>
                      <span>{formattedDate}</span>
@@ -195,11 +226,14 @@ const Post = ({ post }: PostProps) => {
                   {/* Comments */}
                   <div 
                      className='flex gap-1 items-center cursor-pointer group' 
-                     onClick={() => document.getElementById("comments_modal" + post._id).showModal()}
+                     onClick={() => {
+                        const dialogElement = document.getElementById("comments_modal" + post._id) as HTMLDialogElement;
+                        dialogElement.showModal();
+                     }}
                   >
                      <FaRegComment className='w-4 h-4 text-slate-500 group-hover:text-sky-400' />
                      <span className='text-sm text-slate-500 group-hover:text-sky-400'>
-                        {post.comments.length}
+                        {post.comments?.length}
                      </span>
                   </div>
                   {/* We're using Modal Component from DaisyUI */}
@@ -207,10 +241,10 @@ const Post = ({ post }: PostProps) => {
                      <div className='modal-box rounded border border-gray-600'>
                         <h3 className='font-bold text-lg mb-4'>COMMENTS</h3>
                         <div className='flex flex-col gap-3 max-h-60 overflow-auto'>
-                           {post.comments.length === 0 && (
+                           {post.comments?.length === 0 && (
                               <p>No comments yet 🤔 Be the first one 😉</p>
                            )}
-                           {post.comments.map((comment) => (
+                           {post.comments?.map((comment) => (
                               <div key={comment._id} className='flex gap-2 items-start'>
                                  <div className='avatar'>
                                     <div className='w-8 rounded-full'>
@@ -253,7 +287,10 @@ const Post = ({ post }: PostProps) => {
                            </button>
                         </form>
                      </div>
-                     <form method='dialog' className='modal-backdrop'>
+                     <form method='dialog' className='modal-backdrop' onClick={() => {
+                        const dialogElement = document.getElementById("comments_modal" + post._id) as HTMLDialogElement;
+                        dialogElement.close();
+                     }}>
                         <button className='outline-none'>Close</button>
                      </form>
                   </dialog>
@@ -276,7 +313,7 @@ const Post = ({ post }: PostProps) => {
                      <span
                         className={`text-sm group-hover:text-pink-500 ${isLiked ? 'text-pink-500' : 'text-slate-500'}`}
                      >
-                        {post.likes.length}
+                        {post.likes?.length}
                      </span>
                   </div>
                   {/* Bookmark */}
