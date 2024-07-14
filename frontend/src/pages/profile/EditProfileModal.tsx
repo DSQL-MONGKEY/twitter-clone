@@ -1,13 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react"
 import useUpdateUserProfile from "../../hooks/useUpdateProfile";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 interface InputChange {
-   (e: React.FormEvent<HTMLInputElement|HTMLTextAreaElement>): void
+   (e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement>): void
 }
 
-const EditProfileModal = ({ authUser }) => {
-   const [formData, setFormData] = useState({
+const EditProfileModal = ({ authUser }: any) => {
+   const [formData, setFormData] = useState<any>({
       fullName: "",
       username: "",
       email: "",
@@ -16,6 +17,8 @@ const EditProfileModal = ({ authUser }) => {
       newPassword: "",
       currentPassword: ""
    });
+
+   const dialogElement = document.getElementById("edit_profile_modal") as HTMLDialogElement;
 
    const { updateProfile, isUpdating } = useUpdateUserProfile();
 
@@ -45,7 +48,7 @@ const EditProfileModal = ({ authUser }) => {
       <>
          <button 
             className='btn btn-outline rounded-full btn-sm'
-            onClick={() => document.getElementById("edit_profile_modal").showModal()}
+            onClick={() => dialogElement?.showModal()}
          >
             Edit profile
          </button>
@@ -120,7 +123,7 @@ const EditProfileModal = ({ authUser }) => {
                   </button>
                </form>
             </div>
-            <form method="dialog" className='modal-backdrop'>
+            <form method="dialog" className='modal-backdrop' onClick={() => dialogElement?.close()}>
                <button className='outline-none'>close</button>
             </form>
          </dialog>
