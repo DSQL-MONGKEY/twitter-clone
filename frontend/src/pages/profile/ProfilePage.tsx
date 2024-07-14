@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
@@ -18,22 +19,26 @@ import useUpdateUserProfile from "../../hooks/useUpdateProfile";
 
 interface ChangeImgParams  {
    (
-      e: React.FormEvent<HTMLInputElement>,
+      e: React.ChangeEvent<HTMLInputElement>,
       state: string
    ): void
 }
+type AuthUserType = {
+   _id: string
+   following: string[]
+}
 
 const ProfilePage = () => {
-   const [coverImg, setCoverImg] = useState(null);
-   const [profileImg, setProfileImg] = useState(null);
+   const [coverImg, setCoverImg] = useState<any>(null);
+   const [profileImg, setProfileImg] = useState<any>(null);
    const [feedType, setFeedType] = useState('posts');
    
-   const coverImgRef = useRef(null);
-   const profileImgRef = useRef(null);
+   const coverImgRef = useRef<any>(null);
+   const profileImgRef = useRef<any>(null);
    const { username } = useParams();
 
-   const { data:authUser } = useQuery({ queryKey: ['authUser'] })
-   const { data:posts } = useQuery({ queryKey: ['posts'] });
+   const { data:authUser } = useQuery<AuthUserType>({ queryKey: ['authUser'] })
+   const { data:posts } = useQuery<object[]>({ queryKey: ['posts'] });
    const { updateProfile, isUpdating } = useUpdateUserProfile();
 
 
@@ -47,14 +52,18 @@ const ProfilePage = () => {
             if(!res.ok) {
                throw new Error(data.error || 'Something went wrong');
             }
+
             return data;
          } catch (error) {
-            throw new Error(error);
+            if(error instanceof Error) {
+               throw new Error(error.message);
+            }
          }
       }
    })
 
    const handleImgChange:ChangeImgParams = (e, state)  => {
+      if(!e.target.files) return;
       const file = e.target.files[0];
       if(file) {
          const reader = new FileReader();
