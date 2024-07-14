@@ -8,6 +8,12 @@ import XSvg from '../svgs/X';
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
+type AuthUserType = {
+   profileImg: string
+   username: string
+   fullName: string
+}
+
 const Sidebar = () => {
    const queryClient = useQueryClient();
    const { mutate:logout } = useMutation({
@@ -17,9 +23,12 @@ const Sidebar = () => {
                method: 'POST'
             })
             const data = await res.json();
+
             if(!res.ok) throw new Error(data.error || 'Something went wrong');
          } catch (error) {
-            throw new Error(error)
+            if(error instanceof Error) {
+               throw new Error(error.message);
+            }
          }
       },
       onSuccess: () => {
@@ -31,7 +40,7 @@ const Sidebar = () => {
       }
    })
 
-   const { data:authUser } = useQuery({ queryKey: ['authUser'] })
+   const { data:authUser } = useQuery<AuthUserType>({ queryKey: ['authUser'] })
 
    return (
       <div className='w-18 max-w-52 md:flex[2_2_0]'>
