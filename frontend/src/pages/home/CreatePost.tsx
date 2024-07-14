@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CiImageOn } from "react-icons/ci";
 import { BsEmojiSmileFill } from "react-icons/bs";
 import React, { useRef, useState } from "react";
@@ -5,13 +6,17 @@ import { IoCloseSharp } from "react-icons/io5";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
+type AuthUserType = {
+   profileImg: string
+}
 
 const CreatePost = () => {
    const [text, setText] = useState<string>('');
-   const [img, setImg] = useState(null);
+   const [img, setImg] = useState<null|string>(null);
+   const imgRef = useRef<any>(null);
 
    const queryClient = useQueryClient();
-   const { data:authUser } = useQuery({ queryKey: ['authUser'] });
+   const { data:authUser } = useQuery<AuthUserType>({ queryKey: ['authUser'] });
 
    const { mutate:createPost, isPending, isError, error } = useMutation({
       mutationFn: async() => {
@@ -30,7 +35,9 @@ const CreatePost = () => {
             }
             return data;
          } catch (error) {
-            throw new Error(error)
+            if(error instanceof Error) {
+               throw new Error(error.message);
+            }
          }
       },
       onSuccess: () => {
@@ -46,23 +53,25 @@ const CreatePost = () => {
       createPost();
    }
 
-   const imgRef = useRef(null)
-   const handleImgChange = (e: React.FormEvent<HTMLInputElement>) => {
-      const file = e.target.files[0];
+   const handleImgChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if(!e.target.files) return;
+      const file = (e.target.files)[0];
+
       if(file) {
          const reader = new FileReader();
          reader.onload = () => {
-            setImg(reader.result);
+            const result: string = reader.result as string;
+            setImg(result);
          }
          reader.readAsDataURL(file);
       }
    }
-   const handleTextChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
+   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setText(e.target.value);
    }
    const handleCloseImg = () => {
       setImg(null);
-      imgRef.current.value = null;
+      imgRef.current.value = null; 
    }
 
    return (
@@ -70,7 +79,7 @@ const CreatePost = () => {
          <div className='avatar'>
             <div className='w-8 rounded-full'>
                <img 
-                  src={authUser.profileImg || '/avatar-placeholder.png'} 
+                  src={authUser?.profileImg || '/avatar-placeholder.png'} 
                   alt="profile-img" 
                />
             </div>
