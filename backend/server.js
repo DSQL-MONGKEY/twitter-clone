@@ -21,7 +21,7 @@ cloudinary.config({
 
 const app = express();
 const HOST = process.env.HOST;
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
 
 // limit shouldn't too large to avoid the Dos attack 
