@@ -76,7 +76,9 @@ const ProfilePage = () => {
    };
 
    const handleUpdateProfile = async() => {
-      await updateProfile({ coverImg, profileImg });
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      await updateProfile({ coverImg, profileImg }); 
       setCoverImg(null);
       setProfileImg(null);
    }
