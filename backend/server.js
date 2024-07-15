@@ -20,7 +20,7 @@ cloudinary.config({
 })
 
 const app = express();
-const HOST = process.env.HOST;
+const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
 const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
 
