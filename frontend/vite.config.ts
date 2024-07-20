@@ -8,7 +8,7 @@ export default defineConfig({
       port: 3000,
       proxy: {
          "/api" : {
-            target: "http://localhost:5000",
+            target: "https://twitter-backend-m7b6mm5b4a-as.a.run.app",
             changeOrigin: true,
          }
       }
