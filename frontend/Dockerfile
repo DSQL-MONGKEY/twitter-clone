@@ -1,4 +1,4 @@
-FROM node:20-alpine3.18
+FROM node:20 as build
 
 WORKDIR /app
 
@@ -8,10 +8,11 @@ RUN npm install
 
 COPY . ./
 
-RUN npm install -g serve
-
 RUN npm run build
 
-EXPOSE 3000
+FROM nginx:latest
 
-CMD ["serve", "-s", "-l", "3000", "./dist"]
+EXPOSE 80
+
+COPY ./nginx/nginx.conf /etc/nginx/conf.d
+COPY --from=build /app/dist usr/share/nginx/html
